@@ -73,112 +73,35 @@ public class Inscricoes {
 
         return auxTable;
     }
+    
+    public static Map<String, List<String>> removerdaTabela(Table tabela, String toRemover) {
+
+        Map<String, List<String>> auxTable = new HashMap<>();
+
+        tabela.getTabela().keySet().forEach(s -> {
+            List<String> aux = tabela.getTabela().get(s).stream()
+                    .map(x -> x.trim().toLowerCase())                    
+                    .filter(x -> tabela.getTabela().get(toRemover)
+                    .stream()
+                    .map(y -> y.trim().toLowerCase())                    
+                    .noneMatch(z -> x.equals(z)))
+                    .collect(Collectors.toList());
+
+            auxTable.put(s, aux);
+        });
+
+        return auxTable;
+
+    }
 
     public static Map<String, List<String>> getOtimoTable() {
         return otimoTable;
-    }
+    }    
+    
+    public List<String> ambos(Map<String,List<String>> tabela,String coluna1, String coluna2) {
 
-    private List<String[]> ToSave(Map<String, List<String>> tabela) {
-
-        List<String> palestra = tabela.get(coluna1);
-        List<String> simposio = tabela.get(coluna2);
-        String[] head = tabela.keySet().stream().filter(x -> !x.equals("Retornados")).toArray(String[]::new);
-
-        Collections.sort(palestra);
-        Collections.sort(simposio);
-
-        List<String[]> finalList = IntStream.range(0, Math.max(palestra.size(), simposio.size())).
-                mapToObj(i -> {
-                    if (i >= Math.min(palestra.size(), simposio.size())) {
-
-                        if (palestra.size() > simposio.size()) {
-
-                            return new String[]{palestra.get(i), null};
-
-                        } else {
-
-                            return new String[]{null, simposio.get(i)};
-                        }
-
-                    } else {
-
-                        return new String[]{palestra.get(i), simposio.get(i)};
-                    }
-
-                }).collect(Collectors.toList());
-
-        finalList.add(0, head);
-
-        return finalList;
-    }
-
-    public List<String[]> formatToSave(Map<String, List<String>> tabela) {
-
-        int maxnrows = tabela.entrySet().stream().mapToInt(r -> r.getValue().size()).max().getAsInt();
-        int maxncols = tabela.keySet().stream().mapToInt(x -> 1).sum();
-        String[] colnames = tabela.keySet().toArray(new String[maxncols]);
-        
-        
-        List<String[]> newtab = new ArrayList<>();
-        newtab.add(colnames);
-
-        int linha = 0;
-
-        ctrlLinha:
-        while (linha < maxnrows) {
-
-            Iterator<String> colIterator = tabela.keySet().iterator();
-            String[] newrow = new String[maxncols];
-            int coluna = 0;
-
-            colname:
-            while (colIterator.hasNext()) {                
-                
-                String email = colIterator.next();
-
-                xcoluna:
-                while (coluna < maxncols) {
-
-                    if (tabela.get(email).isEmpty()) {
-                        newrow[coluna] = null;
-                        continue colname;
-                    } else {
-
-                        if (linha >= tabela.get(email).size()) {
-
-                            newrow[coluna] = null;
-
-                        } else {
-
-                            newrow[coluna] = tabela.get(email).get(linha);
-
-                        }
-
-                        if (colIterator.hasNext()) {                            
-                            coluna++;
-                            continue colname;
-                        } else {
-
-                            newtab.add(newrow);
-                            newrow = null;
-                            linha++;
-                            continue ctrlLinha;
-
-                        }
-
-                    }
-
-                }
-            }
-        }
-
-        return newtab;
-    }
-
-    public List<String> ambos() {
-
-        List<String> aux1 = otimoTable.get(coluna1);
-        List<String> aux2 = otimoTable.get(coluna2);
+        List<String> aux1 = tabela.get(coluna1);
+        List<String> aux2 = tabela.get(coluna2);
 
         return aux1.stream()
                 .filter(x -> aux2.stream()
@@ -187,13 +110,13 @@ public class Inscricoes {
 
     }
 
-    public List<String> soPalestra() {
+    public List<String> soPalestra(Map<String,List<String>> tabela,String palestra, String simposio) {
 
-        List<String> aux1 = otimoTable.get(coluna1);
-        List<String> aux2 = otimoTable.get(coluna2);
+        List<String> aux1 = tabela.get(palestra);
+        List<String> aux2 = tabela.get(simposio);
 
         return aux1.stream()
-                .filter(x -> !ambos().stream().
+                .filter(x -> !ambos(tabela,palestra,simposio).stream().
                 anyMatch(y -> y.equals(x)))
                 .collect(Collectors.toList());
 
@@ -255,9 +178,9 @@ public class Inscricoes {
 
     }
 
-    public void resume() {
+    public void resume(Map<String,List<String>> tabela,String palestra, String simposio) {
 
-        int atingidos = soPalestra().size() + otimoTable.get("Simposio").size();
+        int atingidos = soPalestra(tabela,palestra,simposio).size() + otimoTable.get("Simposio").size();
 
         double conversao = (otimoTable.get("Simposio").size() / (double) atingidos) * 100;
 
@@ -271,8 +194,8 @@ public class Inscricoes {
         System.out.print("Total de emails duplicados(simposio): " + duplicados("Simposio").size() + "\n");
         System.out.print("Total de emails duplicados(palestra): " + duplicados("Palestra").size() + "\n");
         System.out.println("******************************");
-        System.out.print("Inscritos no Simpósio e Palestra: " + ambos().size() + "\n");
-        System.out.print("Inscritos somente na palestra: " + soPalestra().size() + "\n");
+        System.out.print("Inscritos no Simpósio e Palestra: " + ambos(tabela,palestra,simposio).size() + "\n");
+        System.out.print("Inscritos somente na palestra: " + soPalestra(tabela,palestra,simposio).size() + "\n");
         System.out.print("Total de emails retornados (Palestra): " + (retornados(otimoTable).get("Palestra").size()) + "\n");
         System.out.print("Total de emails retornados (Simposio): " + (retornados(otimoTable).get("Simposio").size()) + "\n");
         System.out.println("******************************");

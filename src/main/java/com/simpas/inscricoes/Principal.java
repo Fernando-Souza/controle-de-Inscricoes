@@ -21,13 +21,15 @@ public class Principal {
        //tabela.printTable(tabela);
        
       Map<String,List<String>> otimo = tabela.getTabela();
-       
+      
+      /*
        for(Map.Entry e:otimo.entrySet()){          
                
            System.out.println(e.getKey()+":"+e.getValue());
            
-       }
+       }*/
        
+       inscricoes.resume(otimo, "Palestra", "Simposio");
        
        //inscricoes.getTable().forEach(x->System.out.println(Arrays.toString(x)));
        
@@ -36,7 +38,7 @@ public class Principal {
        //inscricoes.getTable().stream().forEach(x->System.out.println(Arrays.toString(x)));
        
        //inscricoes.duplicados("Simposio").forEach(System.out::println);
-       List<String[]> tabelaformat = inscricoes.formatToSave(Inscricoes.getOtimoTable());
+       List<String[]> tabelaformat = Table.formatToSave(Inscricoes.getOtimoTable());
        
        for(String[] i:tabelaformat){
            
@@ -44,19 +46,11 @@ public class Principal {
            
        }
        
-       Table.salvarCSV(tabelaformat,"/home/fernando/Desktop/simbolosGpas/NOVATABELA.csv");
+       //Table.salvarCSV(tabelaformat,"/home/fernando/Desktop/simbolosGpas/NOVATABELA.csv");
        
        //inscricoes.soPalestra().forEach(System.out::println);
        
-       //inscricoes.duplicados("Simposio").forEach(System.out::println);
-       
-       
-       
-       
-       
-       
-      
-       
+       //inscricoes.duplicados("Simposio").forEach(System.out::println); 
        
         
     }

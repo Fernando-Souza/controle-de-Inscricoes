@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -102,7 +103,69 @@ public class Table {
         return makeTable(table);
     }
  
-    
+    public static  List<String[]> formatToSave(Map<String, List<String>> tabela) {
+
+        int maxnrows = tabela.entrySet().stream().mapToInt(r -> r.getValue().size()).max().getAsInt();
+        int maxncols = tabela.keySet().stream().mapToInt(x -> 1).sum();
+        String[] colnames = tabela.keySet().toArray(new String[maxncols]);
+        
+        
+        List<String[]> newtab = new ArrayList<>();
+        newtab.add(colnames);
+
+        int linha = 0;
+
+        ctrlLinha:
+        while (linha < maxnrows) {
+
+            Iterator<String> colIterator = tabela.keySet().iterator();
+            String[] newrow = new String[maxncols];
+            int coluna = 0;
+
+            colname:
+            while (colIterator.hasNext()) {                
+                
+                String email = colIterator.next();
+
+                xcoluna:
+                while (coluna < maxncols) {
+
+                    if (tabela.get(email).isEmpty()) {
+                        newrow[coluna] = null;
+                        continue colname;
+                    } else {
+
+                        if (linha >= tabela.get(email).size()) {
+
+                            newrow[coluna] = null;
+
+                        } else {
+
+                            newrow[coluna] = tabela.get(email).get(linha);
+
+                        }
+
+                        if (colIterator.hasNext()) {                            
+                            coluna++;
+                            continue colname;
+                        } else {
+
+                            newtab.add(newrow);
+                            newrow = null;
+                            linha++;
+                            continue ctrlLinha;
+
+                        }
+
+                    }
+
+                }
+            }
+        }
+
+        return newtab;
+    }
+      
     
     public static void salvarCSV(List<String[]> tabela,String path){
         
